@@ -81,6 +81,19 @@
       </label>
 
       <label class="field">
+        <span>Microphone</span>
+        <select id="micDevice">
+          <option value="">Automatique (peripherique par defaut)</option>
+        </select>
+        <p class="hint">
+          Choisit le micro utilise pour la reaction de l'avatar a ta voix. La reconnaissance
+          vocale de Chromium n'offre pas de selection officielle de peripherique : ce reglage
+          n'est donc qu'un indice appliquÃ© au mieux, elle continuera generalement d'utiliser le
+          micro par defaut du systeme.
+        </p>
+      </label>
+
+      <label class="field">
         <span>Vitesse de la voix : <span id="voiceRateValue">1.0x</span></span>
         <input id="voiceRate" type="range" min="0.5" max="2" step="0.1" />
       </label>
