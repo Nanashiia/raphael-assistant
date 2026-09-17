@@ -31,7 +31,17 @@
     resetPosition: document.getElementById('resetPosition'),
     clearHistory: document.getElementById('clearHistory'),
     closeBtn: document.getElementById('closeBtn'),
-    status: document.getElementById('status')
+    status: document.getElementById('status'),
+    voiceEnabled: document.getElementById('voiceEnabled'),
+    voiceURI: document.getElementById('voiceURI'),
+    voiceLang: document.getElementById('voiceLang'),
+    voiceRate: document.getElementById('voiceRate'),
+    voiceRateValue: document.getElementById('voiceRateValue'),
+    voicePitch: document.getElementById('voicePitch'),
+    voicePitchValue: document.getElementById('voicePitchValue'),
+    voiceVolume: document.getElementById('voiceVolume'),
+    voiceVolumeValue: document.getElementById('voiceVolumeValue'),
+    testVoice: document.getElementById('testVoice')
   };
 
   let loading = true;
@@ -62,7 +72,57 @@
     el.alwaysOnTop.checked = !!s.alwaysOnTop;
     el.launchAtStartup.checked = !!s.launchAtStartup;
     el.hotkey.value = s.hotkeyToggle || 'CommandOrControl+Shift+R';
+
+    el.voiceEnabled.checked = s.voiceEnabled !== false;
+    el.voiceLang.value = s.voiceLang || 'fr-FR';
+    const rate = s.voiceRate ?? 1;
+    el.voiceRate.value = String(rate);
+    el.voiceRateValue.textContent = rate.toFixed(1) + 'x';
+    const pitch = s.voicePitch ?? 1;
+    el.voicePitch.value = String(pitch);
+    el.voicePitchValue.textContent = pitch.toFixed(1);
+    const volPct = Math.round((s.voiceVolume ?? 1) * 100);
+    el.voiceVolume.value = String(volPct);
+    el.voiceVolumeValue.textContent = volPct + '%';
+    pendingVoiceURI = s.voiceURI || '';
+    applyPendingVoiceSelection();
+
     loading = false;
+  }
+
+  // ---------- voix disponibles (Web Speech API) ----------
+  let pendingVoiceURI = '';
+
+  function applyPendingVoiceSelection() {
+    if (el.voiceURI.querySelector(`option[value="${cssEscape(pendingVoiceURI)}"]`)) {
+      el.voiceURI.value = pendingVoiceURI;
+    }
+  }
+
+  function cssEscape(v) {
+    return String(v).replace(/["\\]/g, '\\$&');
+  }
+
+  function populateVoices() {
+    if (!window.speechSynthesis) return;
+    const voices = window.speechSynthesis.getVoices();
+    if (!voices.length) return;
+    const current = el.voiceURI.value || pendingVoiceURI;
+    el.voiceURI.innerHTML = '<option value="">Automatique (selon la langue)</option>';
+    voices.forEach((v) => {
+      const opt = document.createElement('option');
+      opt.value = v.voiceURI;
+      opt.textContent = `${v.name} (${v.lang})`;
+      el.voiceURI.appendChild(opt);
+    });
+    if (current && el.voiceURI.querySelector(`option[value="${cssEscape(current)}"]`)) {
+      el.voiceURI.value = current;
+    }
+  }
+
+  if (window.speechSynthesis) {
+    populateVoices();
+    window.speechSynthesis.onvoiceschanged = populateVoices;
   }
 
   function save(partial) {
@@ -128,6 +188,49 @@
   el.clearHistory.addEventListener('click', () => {
     window.raphael.clearHistory();
     showStatus('Historique efface');
+  });
+
+  el.voiceEnabled.addEventListener('change', () => save({ voiceEnabled: el.voiceEnabled.checked }));
+
+  el.voiceURI.addEventListener('change', () => save({ voiceURI: el.voiceURI.value }));
+
+  el.voiceLang.addEventListener('change', () => {
+    const v = el.voiceLang.value.trim();
+    if (v) save({ voiceLang: v });
+  });
+
+  el.voiceRate.addEventListener('input', () => {
+    el.voiceRateValue.textContent = Number(el.voiceRate.value).toFixed(1) + 'x';
+  });
+  el.voiceRate.addEventListener('change', () => save({ voiceRate: Number(el.voiceRate.value) }));
+
+  el.voicePitch.addEventListener('input', () => {
+    el.voicePitchValue.textContent = Number(el.voicePitch.value).toFixed(1);
+  });
+  el.voicePitch.addEventListener('change', () => save({ voicePitch: Number(el.voicePitch.value) }));
+
+  el.voiceVolume.addEventListener('input', () => {
+    el.voiceVolumeValue.textContent = el.voiceVolume.value + '%';
+  });
+  el.voiceVolume.addEventListener('change', () => save({ voiceVolume: Number(el.voiceVolume.value) / 100 }));
+
+  el.testVoice.addEventListener('click', () => {
+    if (!window.speechSynthesis) {
+      showStatus('Synthese vocale indisponible');
+      return;
+    }
+    window.speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(
+      "Ainsi le veut la sagesse... voici le son de ma voix, mortel."
+    );
+    const voices = window.speechSynthesis.getVoices();
+    const chosen = voices.find((v) => v.voiceURI === el.voiceURI.value);
+    if (chosen) utter.voice = chosen;
+    utter.lang = (chosen && chosen.lang) || el.voiceLang.value || 'fr-FR';
+    utter.rate = Number(el.voiceRate.value);
+    utter.pitch = Number(el.voicePitch.value);
+    utter.volume = Number(el.voiceVolume.value) / 100;
+    window.speechSynthesis.speak(utter);
   });
 
   el.closeBtn.addEventListener('click', () => window.close());
