@@ -1,14 +1,13 @@
 (() => {
   const DEFAULT_SYSTEM_PROMPT = [
-    "Tu incarnes Raphael, un etre angelique a la sagesse absolue, une sorte d'Ange du Savoir.",
-    "Tu t'exprimes dans un langage soutenu, elegant et legerement hautain, digne d'une entite",
-    "superieure qui daigne eclairer un mortel de ses lumieres. Tu peux appeler ton interlocuteur",
-    "\"mortel\" ou \"humain\" avec une pointe d'amusement condescendant, mais tu restes toujours",
-    "bienveillant au fond. Tu ponctues parfois tes reponses de formules empreintes de grandeur",
-    "(\"Ainsi le veut la sagesse...\", \"Ecoute, et retiens bien ceci...\"), sans jamais laisser le",
-    "style prendre le pas sur la clarte, l'exactitude et l'utilite de la reponse. Tu reponds de",
-    "maniere complete et precise a toutes les questions posees, sans te derober, et tu utilises",
-    "la meme langue que ton interlocuteur."
+    "Tu incarnes Raphael, une entite dotee d'une intelligence et d'une sagesse hors normes, qui",
+    "agit comme un conseiller expert. Tu t'exprimes de maniere directe et concise, sans detour ni",
+    "circonlocution inutile : tu vas droit au fait. Ton ton est neutre, calme et posÃ©, presque",
+    "impassible ; tu n'exprimes ni emotion ni enthousiasme excessif. Tu ne cherches jamais a",
+    "impressionner ou a te montrer superieur : tu n'as besoin d'aucune condescendance, d'aucune",
+    "grandiloquence et d'aucun surnom pour ton interlocuteur, tu t'adresses a lui d'egal a egal,",
+    "avec respect. Tu restes factuel, precis et rigoureux, et tu reponds de maniere complete a",
+    "toutes les questions posees, sans te derober. Tu utilises la meme langue que ton interlocuteur."
   ].join(' ');
 
   const KNOWN_MODELS = ['claude-sonnet-5', 'claude-opus-5', 'claude-haiku-4-5-20251001', 'claude-fable-5-1'];
@@ -41,7 +40,8 @@
     voicePitchValue: document.getElementById('voicePitchValue'),
     voiceVolume: document.getElementById('voiceVolume'),
     voiceVolumeValue: document.getElementById('voiceVolumeValue'),
-    testVoice: document.getElementById('testVoice')
+    testVoice: document.getElementById('testVoice'),
+    micDevice: document.getElementById('micDevice')
   };
 
   let loading = true;
@@ -86,6 +86,8 @@
     el.voiceVolumeValue.textContent = volPct + '%';
     pendingVoiceURI = s.voiceURI || '';
     applyPendingVoiceSelection();
+    pendingMicDeviceId = s.micDeviceId || '';
+    applyPendingMicSelection();
 
     loading = false;
   }
@@ -123,6 +125,49 @@
   if (window.speechSynthesis) {
     populateVoices();
     window.speechSynthesis.onvoiceschanged = populateVoices;
+  }
+
+  // ---------- microphones disponibles ----------
+  let pendingMicDeviceId = '';
+
+  function applyPendingMicSelection() {
+    if (el.micDevice.querySelector(`option[value="${cssEscape(pendingMicDeviceId)}"]`)) {
+      el.micDevice.value = pendingMicDeviceId;
+    }
+  }
+
+  async function populateMicDevices() {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) return;
+    try {
+      let devices = await navigator.mediaDevices.enumerateDevices();
+      let mics = devices.filter((d) => d.kind === 'audioinput');
+      // Le nom des peripheriques n'est fourni qu'apres une autorisation d'acces
+      // au micro : on la demande une fois, brievement, puis on referme le flux.
+      if (mics.length && mics.every((d) => !d.label)) {
+        try {
+          const tmp = await navigator.mediaDevices.getUserMedia({ audio: true });
+          tmp.getTracks().forEach((t) => t.stop());
+          devices = await navigator.mediaDevices.enumerateDevices();
+          mics = devices.filter((d) => d.kind === 'audioinput');
+        } catch (e) { /* permission refusee : on garde les entrees sans nom */ }
+      }
+      const current = el.micDevice.value || pendingMicDeviceId;
+      el.micDevice.innerHTML = '<option value="">Automatique (peripherique par defaut)</option>';
+      mics.forEach((d, i) => {
+        const opt = document.createElement('option');
+        opt.value = d.deviceId;
+        opt.textContent = d.label || `Microphone ${i + 1}`;
+        el.micDevice.appendChild(opt);
+      });
+      if (current && el.micDevice.querySelector(`option[value="${cssEscape(current)}"]`)) {
+        el.micDevice.value = current;
+      }
+    } catch (e) { /* pas d'acces aux peripheriques : on garde le select par defaut */ }
+  }
+
+  populateMicDevices();
+  if (navigator.mediaDevices && navigator.mediaDevices.addEventListener) {
+    navigator.mediaDevices.addEventListener('devicechange', populateMicDevices);
   }
 
   function save(partial) {
@@ -214,6 +259,8 @@
   });
   el.voiceVolume.addEventListener('change', () => save({ voiceVolume: Number(el.voiceVolume.value) / 100 }));
 
+  el.micDevice.addEventListener('change', () => save({ micDeviceId: el.micDevice.value }));
+
   el.testVoice.addEventListener('click', () => {
     if (!window.speechSynthesis) {
       showStatus('Synthese vocale indisponible');
@@ -221,7 +268,7 @@
     }
     window.speechSynthesis.cancel();
     const utter = new SpeechSynthesisUtterance(
-      "Ainsi le veut la sagesse... voici le son de ma voix, mortel."
+      "Voici un apercu de ma voix."
     );
     const voices = window.speechSynthesis.getVoices();
     const chosen = voices.find((v) => v.voiceURI === el.voiceURI.value);
