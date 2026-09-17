@@ -1,37 +1,92 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
   <defs>
     <radialGradient id="bg" cx="35%" cy="30%" r="75%">
-      <stop offset="0%" stop-color="#241a4a"/>
-      <stop offset="100%" stop-color="#140e30"/>
+      <stop offset="0%" stop-color="#2a1f57"/>
+      <stop offset="100%" stop-color="#120c2b"/>
+    </radialGradient>
+    <linearGradient id="wingGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f4d99c"/>
+      <stop offset="100%" stop-color="#b9863c"/>
+    </linearGradient>
+    <radialGradient id="irisGrad" cx="40%" cy="35%" r="70%">
+      <stop offset="0%" stop-color="#8fc0ef"/>
+      <stop offset="100%" stop-color="#3f6fa8"/>
     </radialGradient>
   </defs>
-  <circle cx="256" cy="256" r="238" fill="url(#bg)" stroke="#dfb260" stroke-width="10"/>
-  <circle cx="256" cy="256" r="212" fill="none" stroke="#dfb260" stroke-opacity="0.55" stroke-width="4"/>
-  <g stroke="#dfb260" stroke-width="4" stroke-linecap="round" opacity="0.85">
-    <line x1="256" y1="44" x2="256" y2="88"/>
-    <line x1="256" y1="424" x2="256" y2="468"/>
-    <line x1="44" y1="256" x2="88" y2="256"/>
-    <line x1="424" y1="256" x2="468" y2="256"/>
-    <line x1="106" y1="106" x2="136" y2="136"/>
-    <line x1="376" y1="376" x2="406" y2="406"/>
-    <line x1="406" y1="106" x2="376" y2="136"/>
-    <line x1="136" y1="376" x2="106" y2="406"/>
+
+  <!-- wings, sprouting from behind the disc -->
+  <g id="wings" fill="url(#wingGrad)" opacity="0.95">
+    <g id="wing-left">
+      <ellipse cx="44" cy="196" rx="10" ry="36" transform="rotate(-24 44 196)"/>
+      <ellipse cx="28" cy="228" rx="11" ry="40" transform="rotate(-10 28 228)"/>
+      <ellipse cx="22" cy="266" rx="12" ry="44" transform="rotate(4 22 266)"/>
+      <ellipse cx="28" cy="304" rx="11" ry="40" transform="rotate(18 28 304)"/>
+      <ellipse cx="44" cy="336" rx="10" ry="36" transform="rotate(32 44 336)"/>
+    </g>
+    <g id="wing-right">
+      <ellipse cx="468" cy="196" rx="10" ry="36" transform="rotate(24 468 196)"/>
+      <ellipse cx="484" cy="228" rx="11" ry="40" transform="rotate(10 484 228)"/>
+      <ellipse cx="490" cy="266" rx="12" ry="44" transform="rotate(-4 490 266)"/>
+      <ellipse cx="484" cy="304" rx="11" ry="40" transform="rotate(-18 484 304)"/>
+      <ellipse cx="468" cy="336" rx="10" ry="36" transform="rotate(-32 468 336)"/>
+    </g>
   </g>
-  <g stroke="#dfb260" stroke-width="3" stroke-linecap="round" opacity="0.6">
-    <line x1="256" y1="70" x2="256" y2="100" transform="rotate(22.5 256 256)"/>
-    <line x1="256" y1="70" x2="256" y2="100" transform="rotate(67.5 256 256)"/>
-    <line x1="256" y1="70" x2="256" y2="100" transform="rotate(112.5 256 256)"/>
-    <line x1="256" y1="70" x2="256" y2="100" transform="rotate(157.5 256 256)"/>
-    <line x1="256" y1="70" x2="256" y2="100" transform="rotate(202.5 256 256)"/>
-    <line x1="256" y1="70" x2="256" y2="100" transform="rotate(247.5 256 256)"/>
-    <line x1="256" y1="70" x2="256" y2="100" transform="rotate(292.5 256 256)"/>
-    <line x1="256" y1="70" x2="256" y2="100" transform="rotate(337.5 256 256)"/>
+
+  <!-- main disc -->
+  <circle cx="256" cy="256" r="222" fill="url(#bg)" stroke="#dfb260" stroke-width="10"/>
+
+  <!-- halo, resting above the disc -->
+  <g id="halo">
+    <ellipse cx="256" cy="18" rx="54" ry="11" fill="none" stroke="#f2d597" stroke-width="5" opacity="0.9"/>
+    <circle class="halo-orb" cx="256" cy="6" r="4.2" fill="#f2d597"/>
+    <circle class="halo-orb" cx="230" cy="12" r="2.8" fill="#f2d597"/>
+    <circle class="halo-orb" cx="282" cy="12" r="2.8" fill="#f2d597"/>
   </g>
-  <path d="M 130 256 Q 256 180 382 256 Q 256 332 130 256 Z" fill="#0a0814" stroke="#dfb260" stroke-width="5"/>
-  <circle cx="256" cy="256" r="58" fill="#5a96d2"/>
-  <circle cx="256" cy="256" r="27" fill="#08060f"/>
-  <circle cx="242" cy="240" r="9" fill="#ffffff" opacity="0.9"/>
-  <circle cx="256" cy="86" r="6" fill="#dfb260"/>
-  <circle cx="238" cy="90" r="4" fill="#dfb260"/>
-  <circle cx="274" cy="90" r="4" fill="#dfb260"/>
+
+  <g id="ring-outer" stroke="#dfb260" fill="none">
+    <circle cx="256" cy="256" r="204" stroke-opacity="0.5" stroke-width="3" stroke-dasharray="2 11" stroke-linecap="round"/>
+    <circle cx="256" cy="256" r="194" stroke-opacity="0.35" stroke-width="2"/>
+  </g>
+
+  <g id="ring-inner" stroke="#dfb260" fill="none" opacity="0.75">
+    <g id="rays-primary" stroke-width="4" stroke-linecap="round">
+      <line x1="256" y1="58" x2="256" y2="100"/>
+      <line x1="256" y1="412" x2="256" y2="454"/>
+      <line x1="58" y1="256" x2="100" y2="256"/>
+      <line x1="412" y1="256" x2="454" y2="256"/>
+      <line x1="115" y1="115" x2="144" y2="144"/>
+      <line x1="368" y1="368" x2="397" y2="397"/>
+      <line x1="397" y1="115" x2="368" y2="144"/>
+      <line x1="144" y1="368" x2="115" y2="397"/>
+    </g>
+    <g id="rays-secondary" stroke-width="2.5" opacity="0.6" stroke-linecap="round">
+      <line x1="256" y1="80" x2="256" y2="106" transform="rotate(22.5 256 256)"/>
+      <line x1="256" y1="80" x2="256" y2="106" transform="rotate(67.5 256 256)"/>
+      <line x1="256" y1="80" x2="256" y2="106" transform="rotate(112.5 256 256)"/>
+      <line x1="256" y1="80" x2="256" y2="106" transform="rotate(157.5 256 256)"/>
+      <line x1="256" y1="80" x2="256" y2="106" transform="rotate(202.5 256 256)"/>
+      <line x1="256" y1="80" x2="256" y2="106" transform="rotate(247.5 256 256)"/>
+      <line x1="256" y1="80" x2="256" y2="106" transform="rotate(292.5 256 256)"/>
+      <line x1="256" y1="80" x2="256" y2="106" transform="rotate(337.5 256 256)"/>
+    </g>
+    <g id="glyph-diamonds" fill="#dfb260" opacity="0.85">
+      <path d="M256 118 l9 13 l-9 13 l-9 -13 Z"/>
+      <path d="M256 356 l9 13 l-9 13 l-9 -13 Z"/>
+      <path d="M118 256 l13 9 l-13 9 l-13 -9 Z"/>
+      <path d="M394 256 l13 9 l-13 9 l-13 -9 Z"/>
+    </g>
+  </g>
+
+  <!-- eye -->
+  <path id="eye-shape" d="M 104 256 Q 256 164 408 256 Q 256 348 104 256 Z" fill="#0a0814" stroke="#dfb260" stroke-width="5"/>
+
+  <g id="iris">
+    <circle cx="256" cy="256" r="62" fill="url(#irisGrad)"/>
+    <path d="M256 210 l11 16 l-11 16 l-11 -16 Z" fill="none" stroke="#284a72" stroke-width="2" opacity="0.6"/>
+    <circle id="pupil" cx="256" cy="256" r="27" fill="#08060f"/>
+    <circle id="highlight" cx="240" cy="239" r="9" fill="#ffffff" opacity="0.9"/>
+  </g>
+
+  <!-- mouth: stylised line beneath the eye, animated while Raphael speaks -->
+  <path id="mouth" d="M 214 332 Q 256 340 298 332" fill="none" stroke="#dfb260" stroke-width="5" stroke-linecap="round" opacity="0.75"/>
 </svg>
