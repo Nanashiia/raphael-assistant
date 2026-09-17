@@ -34,25 +34,17 @@ html, body {
   inset: 0;
   width: 100%;
   height: 100%;
-  border: 2px solid var(--gold);
+  border: 1px solid rgba(190, 170, 255, 0.35);
   border-radius: 50%;
-  background: radial-gradient(circle at 35% 30%, var(--indigo), var(--indigo-deep));
+  background: radial-gradient(circle at 50% 42%, #171426, #060509 72%);
   padding: 0;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   box-shadow: 0 4px 18px rgba(0, 0, 0, 0.45);
-}
-
-#avatar-svg {
-  -webkit-app-region: no-drag;
-  width: 84%;
-  height: 84%;
-  object-fit: contain;
-  pointer-events: none;
-  filter: drop-shadow(0 0 6px rgba(223, 178, 96, 0.5));
-  overflow: visible;
+  --glow-a: 0.75;
+  --glow-b: 0.3;
 }
 
 #pulse {
@@ -60,7 +52,7 @@ html, body {
   position: absolute;
   inset: -4px;
   border-radius: 50%;
-  border: 1px solid rgba(223, 178, 96, 0.55);
+  border: 1px solid rgba(190, 170, 255, 0.4);
   pointer-events: none;
   animation: pulse 2.6s ease-out infinite;
   transition: border-color 0.25s ease;
@@ -72,48 +64,54 @@ html, body {
   100% { transform: scale(1.25); opacity: 0; }
 }
 
-/* ---------- animated avatar states ---------- */
-/* Idle: slow, alive breathing. Listening: mic is capturing speech.
-   Thinking: waiting on Claude. Speaking: reading the reply aloud. */
+/* ---------- animated 3D icosahedron avatar ---------- */
+/* A true CSS-3D wireframe (matrix3d-positioned edges), continuously rotated
+   and rebuilt in JS. Idle: slow steady tumble. Listening: reacts to your
+   mic's live volume. Thinking: faster spin, brighter glow. Speaking: pulses
+   on each spoken word (there is no way to read the synthesized speech's
+   actual waveform from the browser, so this is driven by utterance word
+   timing rather than true audio amplitude). */
 
-#ring-outer { transform-origin: 256px 256px; animation: spin-cw 48s linear infinite; }
-#ring-inner { transform-origin: 256px 256px; animation: spin-ccw 34s linear infinite; }
-
-@keyframes spin-cw { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-@keyframes spin-ccw { from { transform: rotate(0deg); } to { transform: rotate(-360deg); } }
-
-.halo-orb { animation: twinkle 2.4s ease-in-out infinite; }
-.halo-orb:nth-child(2) { animation-delay: 0.3s; }
-.halo-orb:nth-child(3) { animation-delay: 0.6s; }
-@keyframes twinkle { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
-
-#rays-primary, #rays-secondary { animation: rayPulse 3.2s ease-in-out infinite; transform-origin: 256px 256px; }
-@keyframes rayPulse { 0%, 100% { opacity: 0.55; } 50% { opacity: 1; } }
-
-#iris { transform-origin: 256px 256px; transition: transform 0.4s ease; }
-#mouth { transition: d 0.09s ease; }
-
-/* Listening: mic capturing your voice */
-body.listening #pulse {
-  border-color: rgba(120, 200, 255, 0.75);
-  animation-duration: 1.1s;
+#ico-mount {
+  -webkit-app-region: no-drag;
+  width: 78%;
+  height: 78%;
+  perspective: 700px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
 }
-body.listening #iris { transform: scale(1.08); }
 
-/* Thinking: waiting for Raphael's answer */
-body.thinking #ring-outer { animation-duration: 9s; }
-body.thinking #ring-inner { animation-duration: 6s; }
-body.thinking #rays-primary,
-body.thinking #rays-secondary { animation-duration: 0.9s; }
-body.thinking #pulse { animation-duration: 1.4s; }
+#ico-pulse {
+  width: 0;
+  height: 0;
+  will-change: transform;
+}
 
-/* Speaking: reading the reply aloud, mouth flaps and the glow brightens */
-body.speaking #ring-outer { animation-duration: 14s; }
-body.speaking #ring-inner { animation-duration: 10s; }
-body.speaking #rays-primary,
-body.speaking #rays-secondary { animation-duration: 1.4s; opacity: 1; }
-body.speaking #avatar-svg { filter: drop-shadow(0 0 12px rgba(223, 178, 96, 0.85)); }
-body.speaking #iris { transform: scale(1.04); }
+#ico-object {
+  position: relative;
+  width: 0;
+  height: 0;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.ico-edge {
+  position: absolute;
+  left: 0;
+  top: 0;
+  background: #ffffff;
+  border-radius: 2px;
+  transform-origin: 0 0;
+  box-shadow:
+    0 0 5px rgba(255, 255, 255, var(--glow-a, 0.75)),
+    0 0 14px rgba(190, 170, 255, var(--glow-b, 0.3));
+}
+
+body.listening #avatar { --glow-a: 0.95; --glow-b: 0.5; border-color: rgba(140, 200, 255, 0.5); }
+body.thinking #avatar { --glow-a: 1; --glow-b: 0.6; }
+body.speaking #avatar { --glow-a: 0.95; --glow-b: 0.55; }
 
 /* ---------- expanded chat panel ---------- */
 
