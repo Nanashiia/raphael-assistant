@@ -1,0 +1,76 @@
+{
+  "name": "raphael-assistant",
+  "version": "1.0.0",
+  "description": "Assistant IA de bureau sous forme de superposition (overlay), avec une personnalite inspiree de Raphael, l'Ange du Savoir.",
+  "author": "Theo Hilaire",
+  "license": "MIT",
+  "private": true,
+  "main": "main.js",
+  "scripts": {
+    "postinstall": "node scripts/generate-icons.js",
+    "start": "electron .",
+    "icons": "node scripts/generate-icons.js",
+    "dist:win": "npm run icons && electron-builder --win",
+    "dist:mac": "npm run icons && electron-builder --mac",
+    "dist": "npm run icons && electron-builder --win --mac"
+  },
+  "devDependencies": {
+    "electron": "^44.4.1",
+    "electron-builder": "^26.15.3",
+    "icon-gen": "^5.0.0"
+  },
+  "build": {
+    "appId": "com.theohilaire.raphael-assistant",
+    "productName": "Raphael Assistant",
+    "files": [
+      "main.js",
+      "preload.js",
+      "renderer/**/*",
+      "assets/**/*",
+      "!scripts/**",
+      "!.github/**"
+    ],
+    "directories": {
+      "buildResources": "build",
+      "output": "dist"
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.ico",
+      "artifactName": "${productName}-Setup-${version}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    },
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ],
+      "icon": "build/icon.icns",
+      "category": "public.app-category.productivity",
+      "identity": null,
+      "hardenedRuntime": false,
+      "gatekeeperAssess": false
+    },
+    "dmg": {
+      "sign": false
+    }
+  }
+}
