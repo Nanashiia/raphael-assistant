@@ -4,10 +4,15 @@ Assistant IA de bureau sous forme de petite bulle en superposition (overlay), to
 
 Fonctionnalites :
 
-- Bulle flottante deplacable n'importe ou sur l'ecran, qui se replie/depiane en un clic.
+- Bulle flottante deplacable n'importe ou sur l'ecran, qui se replie/depiane en un clic, avec un embleme original anime (oeil de sagesse ailes, halo, anneaux tournants).
+- **Tu peux lui parler directement** : clique sur le micro, pose ta question a voix haute, elle est transcrite puis envoyee automatiquement des que tu t'arretes de parler.
+- **Raphael te repond a voix haute** (synthese vocale), avec le choix de la voix, de la langue, de la vitesse, de la tonalite et du volume dans les Parametres.
+- L'avatar reagit visuellement a ce qui se passe : il "ecoute" quand le micro capte ta voix, "reflechit" en attendant la reponse de Claude, et sa bouche s'anime pendant qu'il parle.
 - Peut etre masquee (icone dans la zone de notification / tray) et rappelee via un raccourci clavier.
-- Fenetre de parametres dediee : cle API, choix du modele Claude, personnalite (prompt systeme modifiable), taille, opacite, raccourci clavier, lancement automatique, reinitialisation de la position, effacement de l'historique.
+- Fenetre de parametres dediee : cle API, choix du modele Claude, personnalite (prompt systeme modifiable), voix et reconnaissance vocale, taille, opacite, raccourci clavier, lancement automatique, reinitialisation de la position, effacement de l'historique.
 - Reste au premier plan, sur tous les bureaux virtuels.
+
+> **A propos de l'apparence** : l'avatar est un embleme original (dessine pour ce projet), inspire du theme "ange de la sagesse" â ce n'est pas une reproduction du design du personnage Raphael de l'anime, qui reste la propriete de ses ayants droit. Seuls le nom, le ton de personnalite et le style de reponse s'en inspirent, via le prompt systeme configurable dans les Parametres.
 
 ---
 
@@ -86,7 +91,11 @@ Ces avertissements sont normaux pour une application non signee et n'empechent p
 - **Glisse la bulle** (ou l'en-tete de la fenetre de discussion) pour la deplacer n'importe ou sur l'ecran ; sa position est memorisee.
 - **Icone dans la zone de notification (tray)** : clic pour afficher/masquer, clic droit pour acceder aux Parametres, effacer l'historique, reinitialiser la position, ou quitter.
 - **Raccourci clavier** (par defaut `Ctrl+Shift+R` / `Cmd+Shift+R` sur Mac) : affiche ou masque la bulle instantanement, meme si elle est cachee.
-- **Parametres** (roue dentee dans la fenetre de discussion, ou menu du tray) : cle API, modele Claude utilise, personnalite (le prompt systeme qui donne son style a Raphael), taille de la bulle, opacite, raccourci clavier, lancement automatique au demarrage, reinitialisation de la position, effacement de la memoire de conversation.
+- **Bouton micro** (a cote de la zone de saisie) : parle, et ta question est transcrite puis envoyee automatiquement des que tu t'arretes ; l'avatar affiche un anneau bleu pendant qu'il t'ecoute. Necessite d'autoriser le microphone au premier lancement (et sur macOS, l'autorisation systeme "Microphone" dans Reglages > Confidentialite).
+- **Bouton haut-parleur** (en-tete de la fenetre de discussion) : coupe ou reactive instantanement la reponse vocale de Raphael.
+- **Parametres** (roue dentee dans la fenetre de discussion, ou menu du tray) : cle API, modele Claude utilise, personnalite (le prompt systeme qui donne son style a Raphael), voix (activation, choix de la voix, langue, vitesse, tonalite, volume, bouton "Tester la voix"), taille de la bulle, opacite, raccourci clavier, lancement automatique au demarrage, reinitialisation de la position, effacement de la memoire de conversation.
+
+Note sur la voix : elle utilise les voix deja installees sur ton systeme (Windows/macOS) ainsi que la reconnaissance vocale du navigateur integre a l'application â aucune cle ou service externe supplementaire n'est necessaire, et rien n'est envoye ailleurs qu'a l'API Anthropic pour le texte de la conversation. La disponibilite et la qualite des voix dependent de celles installees sur ta machine.
 
 ---
 
