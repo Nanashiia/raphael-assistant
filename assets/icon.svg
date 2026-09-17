@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <radialGradient id="bg" cx="35%" cy="30%" r="75%">
+      <stop offset="0%" stop-color="#241a4a"/>
+      <stop offset="100%" stop-color="#140e30"/>
+    </radialGradient>
+  </defs>
+  <circle cx="256" cy="256" r="238" fill="url(#bg)" stroke="#dfb260" stroke-width="10"/>
+  <circle cx="256" cy="256" r="212" fill="none" stroke="#dfb260" stroke-opacity="0.55" stroke-width="4"/>
+  <g stroke="#dfb260" stroke-width="4" stroke-linecap="round" opacity="0.85">
+    <line x1="256" y1="44" x2="256" y2="88"/>
+    <line x1="256" y1="424" x2="256" y2="468"/>
+    <line x1="44" y1="256" x2="88" y2="256"/>
+    <line x1="424" y1="256" x2="468" y2="256"/>
+    <line x1="106" y1="106" x2="136" y2="136"/>
+    <line x1="376" y1="376" x2="406" y2="406"/>
+    <line x1="406" y1="106" x2="376" y2="136"/>
+    <line x1="136" y1="376" x2="106" y2="406"/>
+  </g>
+  <g stroke="#dfb260" stroke-width="3" stroke-linecap="round" opacity="0.6">
+    <line x1="256" y1="70" x2="256" y2="100" transform="rotate(22.5 256 256)"/>
+    <line x1="256" y1="70" x2="256" y2="100" transform="rotate(67.5 256 256)"/>
+    <line x1="256" y1="70" x2="256" y2="100" transform="rotate(112.5 256 256)"/>
+    <line x1="256" y1="70" x2="256" y2="100" transform="rotate(157.5 256 256)"/>
+    <line x1="256" y1="70" x2="256" y2="100" transform="rotate(202.5 256 256)"/>
+    <line x1="256" y1="70" x2="256" y2="100" transform="rotate(247.5 256 256)"/>
+    <line x1="256" y1="70" x2="256" y2="100" transform="rotate(292.5 256 256)"/>
+    <line x1="256" y1="70" x2="256" y2="100" transform="rotate(337.5 256 256)"/>
+  </g>
+  <path d="M 130 256 Q 256 180 382 256 Q 256 332 130 256 Z" fill="#0a0814" stroke="#dfb260" stroke-width="5"/>
+  <circle cx="256" cy="256" r="58" fill="#5a96d2"/>
+  <circle cx="256" cy="256" r="27" fill="#08060f"/>
+  <circle cx="242" cy="240" r="9" fill="#ffffff" opacity="0.9"/>
+  <circle cx="256" cy="86" r="6" fill="#dfb260"/>
+  <circle cx="238" cy="90" r="4" fill="#dfb260"/>
+  <circle cx="274" cy="90" r="4" fill="#dfb260"/>
+</svg>
