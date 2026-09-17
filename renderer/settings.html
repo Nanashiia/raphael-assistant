@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <title>Parametres - Raphael</title>
+  <link rel="stylesheet" href="settings.css" />
+</head>
+<body>
+  <div id="wrap">
+    <header>
+      <img src="../assets/icon.png" alt="" />
+      <div>
+        <h1>Raphael - Parametres</h1>
+        <p class="sub">Configure ton assistant, son apparence et son comportement.</p>
+      </div>
+    </header>
+
+    <section>
+      <h2>Connexion a l'IA</h2>
+
+      <label class="field">
+        <span>Cle API Anthropic</span>
+        <div class="row">
+          <input id="apiKey" type="password" placeholder="sk-ant-..." autocomplete="off" />
+          <button type="button" id="toggleKey" class="ghost">Afficher</button>
+        </div>
+        <p class="hint">
+          Obtiens ta cle sur
+          <a href="#" id="linkConsole">console.anthropic.com</a>
+          (rubrique "API Keys"). Elle reste stockee uniquement sur cet ordinateur.
+        </p>
+      </label>
+
+      <label class="field">
+        <span>Modele</span>
+        <select id="model">
+          <option value="claude-sonnet-5">Claude Sonnet 5 - equilibre, recommande</option>
+          <option value="claude-opus-5">Claude Opus 5 - le plus puissant (plus lent et couteux)</option>
+          <option value="claude-haiku-4-5-20251001">Claude Haiku 4.5 - le plus rapide et economique</option>
+          <option value="claude-fable-5-1">Claude Fable 5.1 - raisonnement long / agentique</option>
+          <option value="__custom__">Autre (identifiant personnalise)</option>
+        </select>
+      </label>
+
+      <label class="field" id="customModelField" hidden>
+        <span>Identifiant de modele personnalise</span>
+        <input id="modelCustom" type="text" placeholder="ex: claude-opus-5" />
+      </label>
+    </section>
+
+    <section>
+      <h2>Personnalite</h2>
+      <label class="field">
+        <span>Instructions systeme (le style de reponse de Raphael)</span>
+        <textarea id="systemPrompt" rows="7"></textarea>
+        <div class="row">
+          <button type="button" id="resetPrompt" class="ghost">Reinitialiser au style Raphael</button>
+        </div>
+      </label>
+    </section>
+
+    <section>
+      <h2>Superposition a l'ecran</h2>
+
+      <label class="field">
+        <span>Taille de la bulle</span>
+        <select id="size">
+          <option value="small">Petite</option>
+          <option value="medium">Moyenne</option>
+          <option value="large">Grande</option>
+        </select>
+      </label>
+
+      <label class="field">
+        <span>Opacite du panneau : <span id="opacityValue">94%</span></span>
+        <input id="opacity" type="range" min="30" max="100" step="2" />
+      </label>
+
+      <label class="field checkbox">
+        <input id="alwaysOnTop" type="checkbox" />
+        <span>Toujours au-dessus des autres fenetres</span>
+      </label>
+
+      <label class="field checkbox">
+        <input id="launchAtStartup" type="checkbox" />
+        <span>Lancer automatiquement au demarrage du systeme</span>
+      </label>
+
+      <label class="field">
+        <span>Raccourci clavier pour afficher / masquer</span>
+        <input id="hotkey" type="text" placeholder="CommandOrControl+Shift+R" />
+        <p class="hint">Format Electron, ex: CommandOrControl+Shift+R, Alt+Space...</p>
+      </label>
+
+      <div class="row">
+        <button type="button" id="resetPosition" class="ghost">Reinitialiser la position a l'ecran</button>
+        <button type="button" id="clearHistory" class="ghost">Effacer l'historique de conversation</button>
+      </div>
+    </section>
+
+    <footer>
+      <span id="status"></span>
+      <button type="button" id="closeBtn" class="primary">Fermer</button>
+    </footer>
+  </div>
+
+  <script src="settings.js"></script>
+</body>
+</html>
