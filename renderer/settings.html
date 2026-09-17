@@ -60,6 +60,52 @@
     </section>
 
     <section>
+      <h2>Voix</h2>
+
+      <label class="field checkbox">
+        <input id="voiceEnabled" type="checkbox" />
+        <span>Raphael repond a voix haute</span>
+      </label>
+
+      <label class="field">
+        <span>Voix utilisee</span>
+        <select id="voiceURI">
+          <option value="">Automatique (selon la langue)</option>
+        </select>
+      </label>
+
+      <label class="field">
+        <span>Langue (voix et reconnaissance vocale)</span>
+        <input id="voiceLang" type="text" placeholder="fr-FR" />
+        <p class="hint">Code de langue, ex : fr-FR, en-US, es-ES...</p>
+      </label>
+
+      <label class="field">
+        <span>Vitesse de la voix : <span id="voiceRateValue">1.0x</span></span>
+        <input id="voiceRate" type="range" min="0.5" max="2" step="0.1" />
+      </label>
+
+      <label class="field">
+        <span>Tonalite : <span id="voicePitchValue">1.0</span></span>
+        <input id="voicePitch" type="range" min="0" max="2" step="0.1" />
+      </label>
+
+      <label class="field">
+        <span>Volume : <span id="voiceVolumeValue">100%</span></span>
+        <input id="voiceVolume" type="range" min="0" max="100" step="5" />
+      </label>
+
+      <div class="row">
+        <button type="button" id="testVoice" class="ghost">Tester la voix</button>
+      </div>
+
+      <p class="hint">
+        Le microphone (bouton pres de la zone de saisie) te permet de parler directement a Raphael :
+        ta question est transcrite puis envoyee automatiquement des que tu arretes de parler.
+      </p>
+    </section>
+
+    <section>
       <h2>Superposition a l'ecran</h2>
 
       <label class="field">
