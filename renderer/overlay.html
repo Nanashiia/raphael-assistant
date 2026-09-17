@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <title>Raphael</title>
+  <link rel="stylesheet" href="overlay.css" />
+</head>
+<body>
+  <div id="app">
+    <button id="avatar" title="Raphael - clique pour parler">
+      <img src="../assets/icon.png" alt="Raphael" draggable="false" />
+      <span id="pulse"></span>
+    </button>
+
+    <div id="panel">
+      <header id="panel-header">
+        <img class="mini-icon" src="../assets/icon.png" alt="" />
+        <span class="title">Raphael</span>
+        <div class="spacer"></div>
+        <button class="icon-btn" id="btn-settings" title="Parametres">&#9881;</button>
+        <button class="icon-btn" id="btn-collapse" title="Reduire">&#8211;</button>
+        <button class="icon-btn" id="btn-close" title="Masquer">&#10005;</button>
+      </header>
+
+      <div id="messages"></div>
+
+      <footer id="composer">
+        <textarea id="input" rows="1" placeholder="Pose ta question, mortel..."></textarea>
+        <button id="btn-send" title="Envoyer">&#10148;</button>
+      </footer>
+    </div>
+  </div>
+
+  <script src="overlay.js"></script>
+</body>
+</html>
