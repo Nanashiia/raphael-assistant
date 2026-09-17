@@ -1,18 +1,18 @@
 # Raphael Assistant
 
-Assistant IA de bureau sous forme de petite bulle en superposition (overlay), toujours visible par-dessus tes autres fenetres, avec une personnalite d'ange de la sagesse hautain mais serviable. Fonctionne sur **Windows** et **macOS**, propulse par l'API Claude d'Anthropic.
+Assistant IA de bureau sous forme de petite bulle en superposition (overlay), toujours visible par-dessus tes autres fenetres, avec une personnalite de conseiller direct, factuel et sans detour. Fonctionne sur **Windows** et **macOS**, propulse par l'API Claude d'Anthropic.
 
 Fonctionnalites :
 
-- Bulle flottante deplacable n'importe ou sur l'ecran, qui se replie/depiane en un clic, avec un embleme original anime (oeil de sagesse ailes, halo, anneaux tournants).
+- Bulle flottante deplacable n'importe ou sur l'ecran, qui se replie/depiane en un clic, avec un embleme original anime : un icosaedre 3D en fil de fer, traits blancs fins et lumineux, en rotation continue.
 - **Tu peux lui parler directement** : clique sur le micro, pose ta question a voix haute, elle est transcrite puis envoyee automatiquement des que tu t'arretes de parler.
 - **Raphael te repond a voix haute** (synthese vocale), avec le choix de la voix, de la langue, de la vitesse, de la tonalite et du volume dans les Parametres.
-- L'avatar reagit visuellement a ce qui se passe : il "ecoute" quand le micro capte ta voix, "reflechit" en attendant la reponse de Claude, et sa bouche s'anime pendant qu'il parle.
+- L'avatar reagit visuellement a ce qui se passe : il tourne lentement au repos, plus vite et avec plus d'eclat pendant qu'il "reflechit", pulse en direct au volume de ta voix quand le micro t'ecoute, et pulse au rythme des mots pendant qu'il te repond a voix haute.
 - Peut etre masquee (icone dans la zone de notification / tray) et rappelee via un raccourci clavier.
-- Fenetre de parametres dediee : cle API, choix du modele Claude, personnalite (prompt systeme modifiable), voix et reconnaissance vocale, taille, opacite, raccourci clavier, lancement automatique, reinitialisation de la position, effacement de l'historique.
+- Fenetre de parametres dediee : cle API, choix du modele Claude, personnalite (prompt systeme modifiable), voix et reconnaissance vocale (y compris le choix du microphone), taille, opacite, raccourci clavier, lancement automatique, reinitialisation de la position, effacement de l'historique.
 - Reste au premier plan, sur tous les bureaux virtuels.
 
-> **A propos de l'apparence** : l'avatar est un embleme original (dessine pour ce projet), inspire du theme "ange de la sagesse" â ce n'est pas une reproduction du design du personnage Raphael de l'anime, qui reste la propriete de ses ayants droit. Seuls le nom, le ton de personnalite et le style de reponse s'en inspirent, via le prompt systeme configurable dans les Parametres.
+> **A propos de l'apparence** : l'avatar est un embleme original (dessine pour ce projet) â une forme geometrique 3D (icosaedre, 20 faces) plutot qu'une reproduction du design du personnage Raphael de l'anime, qui reste la propriete de ses ayants droit et ne peut pas etre copie ici, meme a usage personnel. Seuls le nom, le ton de personnalite et le style de reponse s'en inspirent, via le prompt systeme configurable dans les Parametres.
 
 ---
 
@@ -91,11 +91,13 @@ Ces avertissements sont normaux pour une application non signee et n'empechent p
 - **Glisse la bulle** (ou l'en-tete de la fenetre de discussion) pour la deplacer n'importe ou sur l'ecran ; sa position est memorisee.
 - **Icone dans la zone de notification (tray)** : clic pour afficher/masquer, clic droit pour acceder aux Parametres, effacer l'historique, reinitialiser la position, ou quitter.
 - **Raccourci clavier** (par defaut `Ctrl+Shift+R` / `Cmd+Shift+R` sur Mac) : affiche ou masque la bulle instantanement, meme si elle est cachee.
-- **Bouton micro** (a cote de la zone de saisie) : parle, et ta question est transcrite puis envoyee automatiquement des que tu t'arretes ; l'avatar affiche un anneau bleu pendant qu'il t'ecoute. Necessite d'autoriser le microphone au premier lancement (et sur macOS, l'autorisation systeme "Microphone" dans Reglages > Confidentialite).
+- **Bouton micro** (a cote de la zone de saisie) : parle, et ta question est transcrite puis envoyee automatiquement des que tu t'arretes ; l'avatar pulse en direct au volume de ta voix pendant qu'il t'ecoute. Necessite d'autoriser le microphone au premier lancement (et sur macOS, l'autorisation systeme "Microphone" dans Reglages > Confidentialite).
 - **Bouton haut-parleur** (en-tete de la fenetre de discussion) : coupe ou reactive instantanement la reponse vocale de Raphael.
-- **Parametres** (roue dentee dans la fenetre de discussion, ou menu du tray) : cle API, modele Claude utilise, personnalite (le prompt systeme qui donne son style a Raphael), voix (activation, choix de la voix, langue, vitesse, tonalite, volume, bouton "Tester la voix"), taille de la bulle, opacite, raccourci clavier, lancement automatique au demarrage, reinitialisation de la position, effacement de la memoire de conversation.
+- **Parametres** (roue dentee dans la fenetre de discussion, ou menu du tray) : cle API, modele Claude utilise, personnalite (le prompt systeme qui donne son style a Raphael), voix (activation, choix de la voix, langue, vitesse, tonalite, volume, bouton "Tester la voix", choix du microphone), taille de la bulle, opacite, raccourci clavier, lancement automatique au demarrage, reinitialisation de la position, effacement de la memoire de conversation.
 
 Note sur la voix : elle utilise les voix deja installees sur ton systeme (Windows/macOS) ainsi que la reconnaissance vocale du navigateur integre a l'application â aucune cle ou service externe supplementaire n'est necessaire, et rien n'est envoye ailleurs qu'a l'API Anthropic pour le texte de la conversation. La disponibilite et la qualite des voix dependent de celles installees sur ta machine.
+
+Note sur le choix du microphone : le reglage "Microphone" dans les Parametres controle le peripherique utilise pour faire reagir l'avatar au volume de ta voix. La reconnaissance vocale de Chromium (qui transcrit ce que tu dis) n'offre pas d'option officielle pour choisir le peripherique d'entree : elle utilisera le plus souvent le microphone par defaut de ton systeme, quel que soit ce reglage. Si tu veux forcer un micro precis pour la dictee elle-meme, il faut le definir comme peripherique par defaut au niveau de Windows/macOS.
 
 ---
 
@@ -108,7 +110,7 @@ raphael-assistant/
 âââ renderer/
 â   âââ overlay.html/css/js   La bulle flottante + fenetre de discussion
 â   âââ settings.html/css/js  La fenetre de parametres
-âââ assets/icon.svg           Icone source de l'application (embleme original "oeil de sagesse")
+âââ assets/icon.svg           Icone source de l'application (embleme original icosaedre 3D)
 âââ scripts/generate-icons.js Genere .ico/.icns/.png a partir de icon.svg (auto, apres npm install)
 âââ .github/workflows/build.yml  Compilation automatique via GitHub Actions
 âââ package.json               Configuration electron-builder (Windows/macOS)
