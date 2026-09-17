@@ -27,7 +27,7 @@ jobs:
           node-version: 22
 
       - name: Installer les dependances
-        run: npm ci
+        run: npm install
 
       - name: Generer les icones
         run: npm run icons
