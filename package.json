@@ -1,6 +1,6 @@
 {
   "name": "raphael-assistant",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Assistant IA de bureau sous forme de superposition (overlay), avec une personnalite inspiree de Raphael, l'Ange du Savoir.",
   "author": "Theo Hilaire",
   "license": "MIT",
@@ -36,12 +36,7 @@
     },
     "win": {
       "target": [
-        {
-          "target": "nsis",
-          "arch": [
-            "x64"
-          ]
-        }
+        { "target": "nsis", "arch": ["x64"] }
       ],
       "icon": "build/icon.ico",
       "artifactName": "${productName}-Setup-${version}.${ext}"
@@ -55,19 +50,17 @@
     },
     "mac": {
       "target": [
-        {
-          "target": "dmg",
-          "arch": [
-            "x64",
-            "arm64"
-          ]
-        }
+        { "target": "dmg", "arch": ["x64", "arm64"] }
       ],
       "icon": "build/icon.icns",
       "category": "public.app-category.productivity",
       "identity": null,
       "hardenedRuntime": false,
-      "gatekeeperAssess": false
+      "gatekeeperAssess": false,
+      "extendInfo": {
+        "NSMicrophoneUsageDescription": "Raphael a besoin du microphone pour t'ecouter lorsque tu lui parles directement.",
+        "NSSpeechRecognitionUsageDescription": "Raphael utilise la reconnaissance vocale pour comprendre ce que tu lui dis."
+      }
     },
     "dmg": {
       "sign": false
