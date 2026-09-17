@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Tray, Menu, globalShortcut, ipcMain, screen, nativeImage, shell } = require('electron');
+const { app, BrowserWindow, Tray, Menu, globalShortcut, ipcMain, screen, nativeImage, shell, session } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
@@ -34,7 +34,13 @@ const DEFAULTS = {
   alwaysOnTop: true,
   launchAtStartup: false,
   position: null,
-  maxTokens: 1024
+  maxTokens: 1024,
+  voiceEnabled: true,
+  voiceRate: 1,
+  voicePitch: 1,
+  voiceVolume: 1,
+  voiceURI: '',
+  voiceLang: 'fr-FR'
 };
 
 let overlayWin = null;
@@ -309,10 +315,24 @@ ipcMain.on('open-external', (event, url) => {
   if (typeof url === 'string' && /^https:\/\//.test(url)) shell.openExternal(url);
 });
 
+function allowMicrophoneAccess() {
+  // La reconnaissance vocale (Web Speech API) a besoin de la permission "media"
+  // pour capturer le microphone ; Electron la refuse par defaut tant qu'on ne
+  // l'autorise pas explicitement ici (application de confiance, usage local).
+  const ses = session.defaultSession;
+  ses.setPermissionRequestHandler((webContents, permission, callback) => {
+    callback(permission === 'media');
+  });
+  if (typeof ses.setPermissionCheckHandler === 'function') {
+    ses.setPermissionCheckHandler((webContents, permission) => permission === 'media');
+  }
+}
+
 app.whenReady().then(() => {
   if (process.platform === 'darwin' && app.dock) {
     try { app.dock.hide(); } catch (e) { /* ignore */ }
   }
+  allowMicrophoneAccess();
   createTray();
   createOverlay();
   const settings = loadSettings();
