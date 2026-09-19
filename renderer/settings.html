@@ -68,14 +68,66 @@
       </label>
 
       <label class="field">
-        <span>Voix utilisee</span>
-        <select id="voiceURI">
-          <option value="">Automatique (selon la langue)</option>
+        <span>Moteur de voix</span>
+        <select id="ttsProvider">
+          <option value="system">Systeme (Windows/macOS, gratuit)</option>
+          <option value="elevenlabs">Cloud - ElevenLabs (voix realiste, necessite une cle API)</option>
         </select>
+        <p class="hint">
+          La voix systeme (SAPI sur Windows) est parfois tres robotique. ElevenLabs offre des voix
+          bien plus naturelles ; je ne peux pas cloner la voix precise d'un personnage ou d'un
+          acteur protege par le droit d'auteur, mais tu peux choisir dans sa bibliotheque une voix
+          grave et posee qui s'approche du meme style.
+        </p>
       </label>
 
+      <div id="systemVoiceFields">
+        <label class="field">
+          <span>Voix utilisee</span>
+          <select id="voiceURI">
+            <option value="">Automatique (selon la langue)</option>
+          </select>
+        </label>
+      </div>
+
+      <div id="cloudVoiceFields" hidden>
+        <label class="field">
+          <span>Cle API ElevenLabs</span>
+          <div class="row">
+            <input id="ttsApiKey" type="password" placeholder="sk_..." autocomplete="off" />
+            <button type="button" id="toggleTtsKey" class="ghost">Afficher</button>
+          </div>
+          <p class="hint">
+            Cree un compte et recupere ta cle sur
+            <a href="#" id="linkElevenLabs">elevenlabs.io</a>
+            (rubrique "Profile > API Keys"). Elle reste stockee uniquement sur cet ordinateur.
+          </p>
+        </label>
+
+        <label class="field">
+          <span>Voix ElevenLabs</span>
+          <div class="row">
+            <select id="ttsVoiceId">
+              <option value="">Aucune voix chargee</option>
+            </select>
+            <button type="button" id="loadTtsVoices" class="ghost">Charger les voix</button>
+          </div>
+          <p class="hint">Renseigne d'abord ta cle API, puis clique sur "Charger les voix".</p>
+        </label>
+
+        <label class="field">
+          <span>Stabilite (plus haut = plus monocorde/pose) : <span id="ttsStabilityValue">75%</span></span>
+          <input id="ttsStability" type="range" min="0" max="100" step="5" />
+        </label>
+
+        <label class="field">
+          <span>Fidelite a la voix d'origine : <span id="ttsSimilarityValue">75%</span></span>
+          <input id="ttsSimilarity" type="range" min="0" max="100" step="5" />
+        </label>
+      </div>
+
       <label class="field">
-        <span>Langue (voix et reconnaissance vocale)</span>
+        <span>Langue (voix systeme et reconnaissance vocale)</span>
         <input id="voiceLang" type="text" placeholder="fr-FR" />
         <p class="hint">Code de langue, ex : fr-FR, en-US, es-ES...</p>
       </label>
@@ -108,15 +160,17 @@
         reste toujours utilisable.
       </p>
 
-      <label class="field">
-        <span>Vitesse de la voix : <span id="voiceRateValue">1.0x</span></span>
-        <input id="voiceRate" type="range" min="0.5" max="2" step="0.1" />
-      </label>
+      <div id="systemVoiceRateFields">
+        <label class="field">
+          <span>Vitesse de la voix : <span id="voiceRateValue">1.0x</span></span>
+          <input id="voiceRate" type="range" min="0.5" max="2" step="0.1" />
+        </label>
 
-      <label class="field">
-        <span>Tonalite : <span id="voicePitchValue">1.0</span></span>
-        <input id="voicePitch" type="range" min="0" max="2" step="0.1" />
-      </label>
+        <label class="field">
+          <span>Tonalite : <span id="voicePitchValue">1.0</span></span>
+          <input id="voicePitch" type="range" min="0" max="2" step="0.1" />
+        </label>
+      </div>
 
       <label class="field">
         <span>Volume : <span id="voiceVolumeValue">100%</span></span>
