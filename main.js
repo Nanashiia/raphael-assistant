@@ -59,7 +59,12 @@ const DEFAULTS = {
   voiceURI: '',
   voiceLang: 'fr-FR',
   micDeviceId: '',
-  wakeWordEnabled: true
+  wakeWordEnabled: true,
+  ttsProvider: 'system',
+  ttsApiKey: '',
+  ttsVoiceId: '',
+  ttsStability: 0.75,
+  ttsSimilarity: 0.75
 };
 
 let overlayWin = null;
@@ -128,6 +133,7 @@ function createOverlay() {
   const settings = loadSettings();
   const dims = collapsedSizeFor(settings.size);
   const pos = settings.position || defaultPosition(dims);
+
   overlayWin = new BrowserWindow({
     width: dims[0],
     height: dims[1],
@@ -161,7 +167,7 @@ function createOverlay() {
   let moveTimer = null;
   overlayWin.on('moved', () => {
     clearTimeout(moveTimer);
-    moveTimer = setTimeout(() => { 
+    moveTimer = setTimeout(() => {
       if (!overlayWin || overlayWin.isDestroyed()) return;
       const [x, y] = overlayWin.getPosition();
       saveSettings({ position: { x, y } });
@@ -292,6 +298,83 @@ async function askClaude(question) {
   }
 }
 
+// ---------- voix cloud (ElevenLabs) ----------
+// Alternative optionnelle aux voix systeme (SAPI sur Windows, souvent tres
+// robotiques) : ElevenLabs propose des voix bien plus naturelles. Necessite
+// une cle API et une voix choisies par l'utilisateur dans les Parametres.
+// On ne clone jamais la voix precise d'un personnage ou d'un acteur protege
+// par le droit d'auteur ; on se contente de la bibliotheque de voix fournie
+// par ElevenLabs, dans laquelle l'utilisateur choisit lui-meme un style proche.
+async function ttsListVoices(apiKey) {
+  if (!apiKey || !apiKey.trim()) {
+    return { error: 'Aucune cle API ElevenLabs configuree.' };
+  }
+  try {
+    const response = await fetch('https://api.elevenlabs.io/v1/voices', {
+      headers: { 'xi-api-key': apiKey.trim() }
+    });
+    if (!response.ok) {
+      const errText = await response.text();
+      let detail = errText;
+      try { detail = JSON.parse(errText).detail?.message || errText; } catch (e) { /* keep raw */ }
+      return { error: `Erreur ElevenLabs (${response.status}) : ${String(detail).slice(0, 300)}` };
+    }
+    const data = await response.json();
+    const voices = (data.voices || []).map((v) => ({
+      voiceId: v.voice_id,
+      name: v.name,
+      category: v.category || ''
+    }));
+    return { voices };
+  } catch (err) {
+    return { error: 'Erreur reseau : ' + err.message };
+  }
+}
+
+async function ttsSpeak(text) {
+  const settings = loadSettings();
+  if (settings.ttsProvider !== 'elevenlabs') {
+    return { error: 'Le moteur de voix cloud n\'est pas active dans les parametres.' };
+  }
+  if (!settings.ttsApiKey || !settings.ttsApiKey.trim()) {
+    return { error: 'Aucune cle API ElevenLabs configuree.' };
+  }
+  if (!settings.ttsVoiceId) {
+    return { error: 'Aucune voix ElevenLabs selectionnee.' };
+  }
+  try {
+    const response = await fetch(
+      `https://api.elevenlabs.io/v1/text-to-speech/${encodeURIComponent(settings.ttsVoiceId)}`,
+      {
+        method: 'POST',
+        headers: {
+          'xi-api-key': settings.ttsApiKey.trim(),
+          'content-type': 'application/json',
+          'accept': 'audio/mpeg'
+        },
+        body: JSON.stringify({
+          text: String(text || '').slice(0, 4000),
+          model_id: 'eleven_multilingual_v2',
+          voice_settings: {
+            stability: settings.ttsStability ?? 0.75,
+            similarity_boost: settings.ttsSimilarity ?? 0.75
+          }
+        })
+      }
+    );
+    if (!response.ok) {
+      const errText = await response.text();
+      let detail = errText;
+      try { detail = JSON.parse(errText).detail?.message || errText; } catch (e) { /* keep raw */ }
+      return { error: `Erreur ElevenLabs (${response.status}) : ${String(detail).slice(0, 300)}` };
+    }
+    const buf = Buffer.from(await response.arrayBuffer());
+    return { audioBase64: buf.toString('base64') };
+  } catch (err) {
+    return { error: 'Erreur reseau : ' + err.message };
+  }
+}
+
 ipcMain.handle('settings:get', () => loadSettings());
 
 ipcMain.handle('settings:set', (event, partial) => {
@@ -321,6 +404,13 @@ ipcMain.handle('settings:set', (event, partial) => {
 });
 
 ipcMain.handle('overlay:ask', async (event, question) => askClaude(String(question || '').slice(0, 4000)));
+
+ipcMain.handle('tts:list-voices', () => {
+  const settings = loadSettings();
+  return ttsListVoices(settings.ttsApiKey);
+});
+
+ipcMain.handle('tts:speak', (event, text) => ttsSpeak(text));
 
 ipcMain.handle('overlay:set-expanded', (event, expanded) => {
   if (!overlayWin || overlayWin.isDestroyed()) return;
