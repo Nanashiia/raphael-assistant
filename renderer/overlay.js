@@ -206,8 +206,44 @@
     return langMatch || voices[0];
   }
 
+  let cloudAudio = null;
+
   function speak(text) {
-    if (!settings.voiceEnabled || !window.speechSynthesis || !text) return;
+    if (!settings.voiceEnabled || !text) return;
+    stopSpeaking();
+    if (settings.ttsProvider === 'elevenlabs' && settings.ttsApiKey && settings.ttsVoiceId) {
+      speakCloud(text);
+    } else {
+      speakSystem(text);
+    }
+  }
+
+  async function speakCloud(text) {
+    try {
+      const res = await window.raphael.ttsSpeak(text);
+      // La voix cloud a pu etre desactivee/changee pendant l'attente reseau.
+      if (!settings.voiceEnabled) return;
+      if (!res || res.error) {
+        console.warn('[Raphael] voix cloud :', (res && res.error) || 'reponse vide');
+        if (expanded && res && res.error) addMessage('assistant', 'Voix cloud indisponible (' + res.error + '), bascule sur la voix systeme.', { error: true });
+        speakSystem(text);
+        return;
+      }
+      cloudAudio = new Audio('data:audio/mpeg;base64,' + res.audioBase64);
+      cloudAudio.volume = settings.voiceVolume ?? 1;
+      cloudAudio.onplay = () => { setState('speaking'); };
+      cloudAudio.ontimeupdate = () => { pulseSpeak(); };
+      cloudAudio.onended = () => { cloudAudio = null; setState('idle'); };
+      cloudAudio.onerror = () => { cloudAudio = null; setState('idle'); };
+      await cloudAudio.play();
+    } catch (e) {
+      console.warn('[Raphael] voix cloud :', e.message);
+      speakSystem(text);
+    }
+  }
+
+  function speakSystem(text) {
+    if (!window.speechSynthesis) { setState('idle'); return; }
     try { window.speechSynthesis.cancel(); } catch (e) { /* ignore */ }
     const utter = new SpeechSynthesisUtterance(text);
     const voice = pickVoice();
@@ -224,6 +260,10 @@
   }
 
   function stopSpeaking() {
+    if (cloudAudio) {
+      try { cloudAudio.pause(); cloudAudio.currentTime = 0; } catch (e) { /* ignore */ }
+      cloudAudio = null;
+    }
     if (window.speechSynthesis) {
       try { window.speechSynthesis.cancel(); } catch (e) { /* ignore */ }
     }
@@ -278,6 +318,7 @@
       && !document.body.classList.contains('thinking')
       && !document.body.classList.contains('speaking');
   }
+
   function ensureListening() {
     if (!recognition || recognizing) return;
     if (!wantBackgroundListening() && !holdingButton) return;
