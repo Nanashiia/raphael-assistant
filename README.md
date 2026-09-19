@@ -6,17 +6,20 @@ Fonctionnalites :
 
 - Bulle flottante deplacable n'importe ou sur l'ecran (glisse-la directement, pas besoin de l'ouvrir d'abord), qui se replie/depiane en un clic, avec un embleme original anime : un icosaedre 3D en fil de fer, traits blancs fins et lumineux, en rotation continue.
 - **Tu peux lui parler directement**, de deux facons : en maintenant le bouton micro enfonce pendant que tu parles (envoi au relachement), ou simplement en disant "Raphael, ..." a voix haute n'importe quand — elle guette son prenom en arriere-plan et prend en compte ce qui suit.
-- **Raphael te repond a voix haute** (synthese vocale), avec le choix de la voix, de la langue, de la vitesse, de la tonalite et du volume dans les Parametres.
+- **Raphael te repond a voix haute** (synthese vocale), avec le choix de la voix, de la langue, de la vitesse, de la tonalite et du volume dans les Parametres. Deux moteurs de voix sont disponibles : la voix systeme (Windows/macOS, gratuite mais parfois robotique) ou une voix cloud ElevenLabs bien plus naturelle (necessite ta propre cle API ElevenLabs).
 - L'avatar reagit visuellement a ce qui se passe : il tourne lentement au repos, plus vite et avec plus d'eclat pendant qu'il "reflechit", pulse en direct au volume de ta voix quand le micro t'ecoute, et pulse au rythme des mots pendant qu'il te repond a voix haute.
 - Peut etre masquee (icone dans la zone de notification / tray) et rappelee via un raccourci clavier.
 - Fenetre de parametres dediee : cle API, choix du modele Claude, personnalite (prompt systeme modifiable), voix et reconnaissance vocale (y compris le choix du microphone et l'ecoute permanente du mot-cle "Raphael"), taille, opacite, raccourci clavier, lancement automatique, reinitialisation de la position, effacement de l'historique.
 - Reste au premier plan, sur tous les bureaux virtuels.
 
 > **A propos de l'apparence** : l'avatar est un embleme original (dessine pour ce projet) — une forme geometrique 3D (icosaedre, 20 faces) plutot qu'une reproduction du design du personnage Raphael de l'anime, qui reste la propriete de ses ayants droit et ne peut pas etre copie ici, meme a usage personnel. Seuls le nom, le ton de personnalite et le style de reponse s'en inspirent, via le prompt systeme configurable dans les Parametres.
+>
+> **A propos de la voix** : de la meme maniere, la voix cloud ElevenLabs se choisit dans la bibliotheque de voix generiques du service — il ne s'agit jamais d'un clonage de la voix precise d'un doubleur ou d'un personnage protege par le droit d'auteur, seulement d'une voix au style proche (grave, posee) que tu selectionnes toi-meme.
 
 ---
 
 ## 1. Ce dont tu as besoin avant de commencer
+
 1. **Node.js 20 ou plus recent** installe sur ta machine (uniquement necessaire si tu veux compiler toi-meme en local — pas necessaire si tu utilises GitHub Actions, voir section 3).
 2. Un **compte GitHub** (gratuit) si tu veux que la compilation se fasse automatiquement dans le cloud sans rien installer.
 3. Une **cle API Anthropic** : cree-la sur https://console.anthropic.com/settings/keys (rubrique "API Keys"). Cette cle est payante a l'usage (facturee par Anthropic selon le nombre de mots echanges) — elle n'est pas fournie avec ce projet. Tu la colles ensuite dans la fenetre "Parametres" de l'application, elle reste stockee uniquement sur ton ordinateur (fichier local, jamais envoyee ailleurs qu'a l'API Anthropic).
