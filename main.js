@@ -9,7 +9,7 @@ const STORE_PATH = path.join(app.getPath('userData'), 'settings.json');
 const DEFAULT_SYSTEM_PROMPT = [
   "Tu incarnes Raphael, une entite dotee d'une intelligence et d'une sagesse hors normes, qui",
   "agit comme un conseiller expert. Tu t'exprimes de maniere directe et concise, sans detour ni",
-  "circonlocution inutile : tu vas droit au fait. Ton ton est neutre, calme et posÃ©, presque",
+  "circonlocution inutile : tu vas droit au fait. Ton ton est neutre, calme et posé, presque",
   "impassible ; tu n'exprimes ni emotion ni enthousiasme excessif. Tu ne cherches jamais a",
   "impressionner ou a te montrer superieur : tu n'as besoin d'aucune condescendance, d'aucune",
   "grandiloquence et d'aucun surnom pour ton interlocuteur, tu t'adresses a lui d'egal a egal,",
@@ -128,7 +128,6 @@ function createOverlay() {
   const settings = loadSettings();
   const dims = collapsedSizeFor(settings.size);
   const pos = settings.position || defaultPosition(dims);
-
   overlayWin = new BrowserWindow({
     width: dims[0],
     height: dims[1],
@@ -162,7 +161,7 @@ function createOverlay() {
   let moveTimer = null;
   overlayWin.on('moved', () => {
     clearTimeout(moveTimer);
-    moveTimer = setTimeout(() => {
+    moveTimer = setTimeout(() => { 
       if (!overlayWin || overlayWin.isDestroyed()) return;
       const [x, y] = overlayWin.getPosition();
       saveSettings({ position: { x, y } });
