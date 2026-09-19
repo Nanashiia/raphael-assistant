@@ -11,6 +11,8 @@ contextBridge.exposeInMainWorld('raphael', {
   openSettings: () => ipcRenderer.send('open-settings'),
   quit: () => ipcRenderer.send('quit-app'),
   openExternal: (url) => ipcRenderer.send('open-external', url),
+  ttsListVoices: () => ipcRenderer.invoke('tts:list-voices'),
+  ttsSpeak: (text) => ipcRenderer.invoke('tts:speak', text),
   onSettingsUpdated: (callback) => {
     const listener = (event, settings) => callback(settings);
     ipcRenderer.on('settings:updated', listener);
