@@ -17,6 +17,24 @@ const DEFAULT_SYSTEM_PROMPT = [
   "toutes les questions posees, sans te derober. Tu utilises la meme langue que ton interlocuteur."
 ].join(' ');
 
+// Anciens prompts par defaut deja livres dans des versions precedentes. Si le
+// prompt enregistre sur le disque correspond mot pour mot a l'un d'eux, c'est
+// qu'il n'a jamais ete personnalise par l'utilisateur : on peut donc le faire
+// evoluer vers le nouveau style par defaut sans ecraser une vraie personnalisation.
+const OLD_DEFAULT_SYSTEM_PROMPTS = [
+  [
+    "Tu incarnes Raphael, un etre angelique a la sagesse absolue, une sorte d'Ange du Savoir.",
+    "Tu t'exprimes dans un langage soutenu, elegant et legerement hautain, digne d'une entite",
+    "superieure qui daigne eclairer un mortel de ses lumieres. Tu peux appeler ton interlocuteur",
+    "\"mortel\" ou \"humain\" avec une pointe d'amusement condescendant, mais tu restes toujours",
+    "bienveillant au fond. Tu ponctues parfois tes reponses de formules empreintes de grandeur",
+    "(\"Ainsi le veut la sagesse...\", \"Ecoute, et retiens bien ceci...\"), sans jamais laisser le",
+    "style prendre le pas sur la clarte, l'exactitude et l'utilite de la reponse. Tu reponds de",
+    "maniere complete et precise a toutes les questions posees, sans te derober, et tu utilises",
+    "la meme langue que ton interlocuteur."
+  ].join(' ')
+];
+
 const SIZE_PRESETS = {
   small: { collapsed: [56, 56], expanded: [300, 400] },
   medium: { collapsed: [72, 72], expanded: [340, 460] },
@@ -40,7 +58,8 @@ const DEFAULTS = {
   voiceVolume: 1,
   voiceURI: '',
   voiceLang: 'fr-FR',
-  micDeviceId: ''
+  micDeviceId: '',
+  wakeWordEnabled: true
 };
 
 let overlayWin = null;
@@ -53,7 +72,19 @@ function loadSettings() {
   try {
     const raw = fs.readFileSync(STORE_PATH, 'utf-8');
     const parsed = JSON.parse(raw);
-    return { ...DEFAULTS, ...parsed };
+    let merged = { ...DEFAULTS, ...parsed };
+    // Migration : un prompt systeme enregistre qui correspond mot pour mot a
+    // un ancien defaut n'a jamais ete touche par l'utilisateur -> on le fait
+    // suivre le nouveau style par defaut au lieu de le laisser fige pour
+    // toujours sur l'ancien texte (ce qui, sinon, rendrait toute mise a jour
+    // de personnalite invisible pour quiconque a deja lance l'app une fois).
+    if (merged.systemPrompt && OLD_DEFAULT_SYSTEM_PROMPTS.includes(merged.systemPrompt)) {
+      merged = { ...merged, systemPrompt: DEFAULT_SYSTEM_PROMPT };
+      try {
+        fs.writeFileSync(STORE_PATH, JSON.stringify(merged, null, 2), 'utf-8');
+      } catch (e) { /* si l'ecriture echoue, la migration sera retentee au prochain lancement */ }
+    }
+    return merged;
   } catch (e) {
     return { ...DEFAULTS };
   }
