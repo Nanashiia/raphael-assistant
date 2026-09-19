@@ -41,7 +41,8 @@
     voiceVolume: document.getElementById('voiceVolume'),
     voiceVolumeValue: document.getElementById('voiceVolumeValue'),
     testVoice: document.getElementById('testVoice'),
-    micDevice: document.getElementById('micDevice')
+    micDevice: document.getElementById('micDevice'),
+    wakeWordEnabled: document.getElementById('wakeWordEnabled')
   };
 
   let loading = true;
@@ -88,6 +89,7 @@
     applyPendingVoiceSelection();
     pendingMicDeviceId = s.micDeviceId || '';
     applyPendingMicSelection();
+    el.wakeWordEnabled.checked = s.wakeWordEnabled !== false;
 
     loading = false;
   }
@@ -260,6 +262,8 @@
   el.voiceVolume.addEventListener('change', () => save({ voiceVolume: Number(el.voiceVolume.value) / 100 }));
 
   el.micDevice.addEventListener('change', () => save({ micDeviceId: el.micDevice.value }));
+
+  el.wakeWordEnabled.addEventListener('change', () => save({ wakeWordEnabled: el.wakeWordEnabled.checked }));
 
   el.testVoice.addEventListener('click', () => {
     if (!window.speechSynthesis) {
