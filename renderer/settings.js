@@ -32,6 +32,19 @@
     closeBtn: document.getElementById('closeBtn'),
     status: document.getElementById('status'),
     voiceEnabled: document.getElementById('voiceEnabled'),
+    ttsProvider: document.getElementById('ttsProvider'),
+    systemVoiceFields: document.getElementById('systemVoiceFields'),
+    systemVoiceRateFields: document.getElementById('systemVoiceRateFields'),
+    cloudVoiceFields: document.getElementById('cloudVoiceFields'),
+    ttsApiKey: document.getElementById('ttsApiKey'),
+    toggleTtsKey: document.getElementById('toggleTtsKey'),
+    linkElevenLabs: document.getElementById('linkElevenLabs'),
+    ttsVoiceId: document.getElementById('ttsVoiceId'),
+    loadTtsVoices: document.getElementById('loadTtsVoices'),
+    ttsStability: document.getElementById('ttsStability'),
+    ttsStabilityValue: document.getElementById('ttsStabilityValue'),
+    ttsSimilarity: document.getElementById('ttsSimilarity'),
+    ttsSimilarityValue: document.getElementById('ttsSimilarityValue'),
     voiceURI: document.getElementById('voiceURI'),
     voiceLang: document.getElementById('voiceLang'),
     voiceRate: document.getElementById('voiceRate'),
@@ -75,6 +88,17 @@
     el.hotkey.value = s.hotkeyToggle || 'CommandOrControl+Shift+R';
 
     el.voiceEnabled.checked = s.voiceEnabled !== false;
+    el.ttsProvider.value = s.ttsProvider || 'system';
+    el.ttsApiKey.value = s.ttsApiKey || '';
+    pendingTtsVoiceId = s.ttsVoiceId || '';
+    applyPendingTtsVoiceSelection();
+    const stabilityPct = Math.round((s.ttsStability ?? 0.75) * 100);
+    el.ttsStability.value = String(stabilityPct);
+    el.ttsStabilityValue.textContent = stabilityPct + '%';
+    const similarityPct = Math.round((s.ttsSimilarity ?? 0.75) * 100);
+    el.ttsSimilarity.value = String(similarityPct);
+    el.ttsSimilarityValue.textContent = similarityPct + '%';
+    updateVoiceFieldsVisibility();
     el.voiceLang.value = s.voiceLang || 'fr-FR';
     const rate = s.voiceRate ?? 1;
     el.voiceRate.value = String(rate);
@@ -127,6 +151,60 @@
   if (window.speechSynthesis) {
     populateVoices();
     window.speechSynthesis.onvoiceschanged = populateVoices;
+  }
+
+  // ---------- voix cloud (ElevenLabs) ----------
+  let pendingTtsVoiceId = '';
+
+  function applyPendingTtsVoiceSelection() {
+    if (el.ttsVoiceId.querySelector(`option[value="${cssEscape(pendingTtsVoiceId)}"]`)) {
+      el.ttsVoiceId.value = pendingTtsVoiceId;
+    }
+  }
+
+  function updateVoiceFieldsVisibility() {
+    const cloud = el.ttsProvider.value === 'elevenlabs';
+    el.systemVoiceFields.hidden = cloud;
+    el.systemVoiceRateFields.hidden = cloud;
+    el.cloudVoiceFields.hidden = !cloud;
+  }
+
+  async function loadTtsVoicesList() {
+    const key = el.ttsApiKey.value.trim();
+    if (!key) {
+      showStatus('Renseigne d\'abord ta cle API ElevenLabs');
+      return;
+    }
+    save({ ttsApiKey: key });
+    const previous = el.ttsVoiceId.value || pendingTtsVoiceId;
+    el.loadTtsVoices.disabled = true;
+    el.loadTtsVoices.textContent = 'Chargement...';
+    try {
+      const res = await window.raphael.ttsListVoices();
+      if (res && res.error) {
+        showStatus(res.error);
+        return;
+      }
+      const voices = (res && res.voices) || [];
+      el.ttsVoiceId.innerHTML = voices.length
+        ? ''
+        : '<option value="">Aucune voix chargee</option>';
+      voices.forEach((v) => {
+        const opt = document.createElement('option');
+        opt.value = v.voiceId;
+        opt.textContent = v.category ? `${v.name} (${v.category})` : v.name;
+        el.ttsVoiceId.appendChild(opt);
+      });
+      if (previous && el.ttsVoiceId.querySelector(`option[value="${cssEscape(previous)}"]`)) {
+        el.ttsVoiceId.value = previous;
+      } else if (voices.length) {
+        save({ ttsVoiceId: el.ttsVoiceId.value });
+      }
+      showStatus(voices.length ? `${voices.length} voix chargees` : 'Aucune voix trouvee');
+    } finally {
+      el.loadTtsVoices.disabled = false;
+      el.loadTtsVoices.textContent = 'Charger les voix';
+    }
   }
 
   // ---------- microphones disponibles ----------
@@ -239,6 +317,38 @@
 
   el.voiceEnabled.addEventListener('change', () => save({ voiceEnabled: el.voiceEnabled.checked }));
 
+  el.ttsProvider.addEventListener('change', () => {
+    updateVoiceFieldsVisibility();
+    save({ ttsProvider: el.ttsProvider.value });
+  });
+
+  el.toggleTtsKey.addEventListener('click', () => {
+    const isPwd = el.ttsApiKey.type === 'password';
+    el.ttsApiKey.type = isPwd ? 'text' : 'password';
+    el.toggleTtsKey.textContent = isPwd ? 'Masquer' : 'Afficher';
+  });
+
+  el.linkElevenLabs.addEventListener('click', (e) => {
+    e.preventDefault();
+    window.raphael.openExternal('https://elevenlabs.io/app/settings/api-keys');
+  });
+
+  el.ttsApiKey.addEventListener('change', () => save({ ttsApiKey: el.ttsApiKey.value.trim() }));
+
+  el.ttsVoiceId.addEventListener('change', () => save({ ttsVoiceId: el.ttsVoiceId.value }));
+
+  el.loadTtsVoices.addEventListener('click', () => { loadTtsVoicesList(); });
+
+  el.ttsStability.addEventListener('input', () => {
+    el.ttsStabilityValue.textContent = el.ttsStability.value + '%';
+  });
+  el.ttsStability.addEventListener('change', () => save({ ttsStability: Number(el.ttsStability.value) / 100 }));
+
+  el.ttsSimilarity.addEventListener('input', () => {
+    el.ttsSimilarityValue.textContent = el.ttsSimilarity.value + '%';
+  });
+  el.ttsSimilarity.addEventListener('change', () => save({ ttsSimilarity: Number(el.ttsSimilarity.value) / 100 }));
+
   el.voiceURI.addEventListener('change', () => save({ voiceURI: el.voiceURI.value }));
 
   el.voiceLang.addEventListener('change', () => {
@@ -265,7 +375,31 @@
 
   el.wakeWordEnabled.addEventListener('change', () => save({ wakeWordEnabled: el.wakeWordEnabled.checked }));
 
-  el.testVoice.addEventListener('click', () => {
+  let testAudio = null;
+
+  el.testVoice.addEventListener('click', async () => {
+    if (el.ttsProvider.value === 'elevenlabs') {
+      if (!el.ttsApiKey.value.trim() || !el.ttsVoiceId.value) {
+        showStatus('Renseigne la cle API et choisis une voix ElevenLabs');
+        return;
+      }
+      el.testVoice.disabled = true;
+      try {
+        const res = await window.raphael.ttsSpeak('Voici un apercu de ma voix.');
+        if (res && res.error) {
+          showStatus(res.error);
+          return;
+        }
+        if (testAudio) { try { testAudio.pause(); } catch (e) { /* ignore */ } }
+        testAudio = new Audio('data:audio/mpeg;base64,' + res.audioBase64);
+        testAudio.volume = Number(el.voiceVolume.value) / 100;
+        testAudio.play();
+      } finally {
+        el.testVoice.disabled = false;
+      }
+      return;
+    }
+
     if (!window.speechSynthesis) {
       showStatus('Synthese vocale indisponible');
       return;
