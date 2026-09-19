@@ -235,11 +235,11 @@
   // que le bouton micro est maintenu), tout ce qui suit devient la question
   // envoyee a Claude. Limite honnete : ceci repose entierement sur le meme
   // moteur de reconnaissance vocale integre au navigateur que le bouton
-  // manuel â si ce moteur echoue (permission refusee, pas de connexion au
+  // manuel — si ce moteur echoue (permission refusee, pas de connexion au
   // service de reconnaissance, etc.), ni le mot-cle ni le bouton ne pourront
   // fonctionner ; les erreurs reelles sont maintenant affichees (voir
   // micError ci-dessous) au lieu d'echouer silencieusement.
-  const WAKE_RE = /rapha[eÃ«]l[,:.!\s]*/i;
+  const WAKE_RE = /rapha[eë]l[,:.!\s]*/i;
 
   const MIC_ERROR_MESSAGES = {
     'not-allowed': "Micro : l'acces au microphone a ete refuse. Verifie les autorisations microphone de Windows/macOS pour Raphael Assistant.",
@@ -383,7 +383,7 @@
       micError(MIC_ERROR_MESSAGES[err] || ('Micro : erreur de reconnaissance vocale (' + err + ').'));
       if (consecutiveErrors >= 5 && settings.wakeWordEnabled !== false) {
         window.raphael.setSettings({ wakeWordEnabled: false });
-        micError("Micro : la reconnaissance vocale echoue de maniere repetee. L'ecoute permanente du mot-cle Â«RaphaelÂ» a ete desactivee automatiquement (reactivable dans les Parametres) ; le bouton micro maintenu reste disponible.");
+        micError("Micro : la reconnaissance vocale echoue de maniere repetee. L'ecoute permanente du mot-cle «Raphael» a ete desactivee automatiquement (reactivable dans les Parametres) ; le bouton micro maintenu reste disponible.");
       }
     };
 
