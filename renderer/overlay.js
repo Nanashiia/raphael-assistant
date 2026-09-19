@@ -190,6 +190,7 @@
   function setState(state) {
     document.body.classList.remove('listening', 'thinking', 'speaking');
     if (state && state !== 'idle') document.body.classList.add(state);
+    else ensureListening(); // de retour au repos -> reprend l'ecoute du mot-cle si activee
   }
 
   // ---------- text-to-speech ----------
@@ -228,7 +229,82 @@
     }
   }
 
-  // ---------- speech-to-text ----------
+  // ---------- speech-to-text : mot-cle "Raphael" + bouton maintenu ----------
+  // Un seul objet SpeechRecognition, garde allume en arriere-plan (mode
+  // continuous) pour guetter le prenom "Raphael" ; des qu'il est entendu (ou
+  // que le bouton micro est maintenu), tout ce qui suit devient la question
+  // envoyee a Claude. Limite honnete : ceci repose entierement sur le meme
+  // moteur de reconnaissance vocale integre au navigateur que le bouton
+  // manuel â si ce moteur echoue (permission refusee, pas de connexion au
+  // service de reconnaissance, etc.), ni le mot-cle ni le bouton ne pourront
+  // fonctionner ; les erreurs reelles sont maintenant affichees (voir
+  // micError ci-dessous) au lieu d'echouer silencieusement.
+  const WAKE_RE = /rapha[eÃ«]l[,:.!\s]*/i;
+
+  const MIC_ERROR_MESSAGES = {
+    'not-allowed': "Micro : l'acces au microphone a ete refuse. Verifie les autorisations microphone de Windows/macOS pour Raphael Assistant.",
+    'permission-denied': "Micro : l'acces au microphone a ete refuse. Verifie les autorisations microphone de Windows/macOS pour Raphael Assistant.",
+    'audio-capture': "Micro : aucun microphone accessible. Verifie qu'un peripherique est branche et non utilise par une autre application.",
+    'network': "Micro : le service de reconnaissance vocale n'a pas pu etre contacte (necessite une connexion internet ; certaines versions de Chromium integrees a Electron n'ont pas acces au service de reconnaissance de Google).",
+    'service-not-allowed': "Micro : le service de reconnaissance vocale est bloque sur ce systeme."
+  };
+
+  function extractAfterWake(text) {
+    const match = text.match(WAKE_RE);
+    if (!match) return null;
+    return text.slice(match.index + match[0].length).trim();
+  }
+
+  function micError(message) {
+    if (!message) return;
+    console.warn('[Raphael] micro :', message);
+    btnMic.title = message;
+    if (expanded) addMessage('assistant', message, { error: true });
+  }
+
+  function resetMicTitle() {
+    btnMic.title = 'Maintiens appuye pour parler, relache pour envoyer';
+  }
+
+  let wakeArmed = false;      // true = capture en cours (mot-cle entendu ou bouton maintenu)
+  let holdingButton = false;  // true tant que le bouton micro est physiquement presse
+  let finalBuffer = '';
+  let restartTimer = null;
+  let consecutiveErrors = 0;
+
+  function wantBackgroundListening() {
+    return !!recognition
+      && settings.wakeWordEnabled !== false
+      && !document.body.classList.contains('thinking')
+      && !document.body.classList.contains('speaking');
+  }
+  function ensureListening() {
+    if (!recognition || recognizing) return;
+    if (!wantBackgroundListening() && !holdingButton) return;
+    try {
+      recognition.lang = settings.voiceLang || 'fr-FR';
+      recognition.start();
+    } catch (e) { /* deja en cours de demarrage : ignore */ }
+  }
+
+  function stopRecognitionSession() {
+    if (recognition && recognizing) {
+      try { recognition.stop(); } catch (e) { /* ignore */ }
+    }
+  }
+
+  function finalizeCapture() {
+    const text = (input.value || finalBuffer).trim();
+    wakeArmed = false;
+    finalBuffer = '';
+    stopMicAnalyser();
+    stopRecognitionSession();
+    if (text) {
+      input.value = text;
+      sendMessage();
+    }
+  }
+
   function setupRecognition() {
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SR) {
@@ -237,68 +313,147 @@
       return;
     }
     recognition = new SR();
-    recognition.continuous = false;
+    recognition.continuous = true;
     recognition.interimResults = true;
     recognition.maxAlternatives = 1;
 
     recognition.onstart = () => {
       recognizing = true;
-      btnMic.classList.add('recording');
-      setState('listening');
+      consecutiveErrors = 0;
+      if (wakeArmed || holdingButton) {
+        btnMic.classList.add('recording');
+        setState('listening');
+      }
     };
 
     recognition.onresult = (event) => {
-      let finalText = '';
-      let interim = '';
+      let interimChunk = '';
+      let sawFinal = false;
       for (let i = event.resultIndex; i < event.results.length; i++) {
         const transcript = event.results[i][0].transcript;
-        if (event.results[i].isFinal) finalText += transcript;
-        else interim += transcript;
+        if (event.results[i].isFinal) {
+          finalBuffer += (finalBuffer ? ' ' : '') + transcript.trim();
+          sawFinal = true;
+        } else {
+          interimChunk = transcript;
+        }
       }
-      input.value = (finalText || interim).trim();
-      autosize();
-      if (finalText.trim()) {
-        recognition.stop();
-        sendMessage();
+
+      if (wakeArmed) {
+        input.value = (finalBuffer + ' ' + interimChunk).trim();
+        autosize();
+        // Envoi automatique des qu'une pause naturelle est detectee, sauf si
+        // le bouton est maintenu (dans ce cas c'est le relachement qui envoie).
+        if (sawFinal && !holdingButton && finalBuffer.trim()) {
+          finalizeCapture();
+        }
+        return;
+      }
+
+      // Pas encore arme : on guette juste le prenom "Raphael".
+      const liveText = (finalBuffer + ' ' + interimChunk).trim();
+      if (WAKE_RE.test(liveText)) {
+        const after = extractAfterWake(liveText);
+        wakeArmed = true;
+        finalBuffer = '';
+        btnMic.classList.add('recording');
+        setState('listening');
+        startMicAnalyser();
+        if (after) {
+          finalBuffer = after;
+          input.value = after;
+          autosize();
+          if (sawFinal) finalizeCapture();
+        }
+      } else {
+        // Evite d'accumuler indefiniment de la parole ambiante en memoire
+        // tant que le mot-cle n'a pas ete entendu.
+        finalBuffer = '';
       }
     };
 
-    recognition.onerror = () => {
-      recognizing = false;
-      btnMic.classList.remove('recording');
-      stopMicAnalyser();
-      setState('idle');
+    recognition.onerror = (event) => {
+      const err = event.error;
+      if (err === 'aborted' || err === 'no-speech') {
+        // 'aborted' = on a nous-meme demande l'arret ; 'no-speech' est normal
+        // pendant l'ecoute passive du mot-cle, on relance simplement.
+        return;
+      }
+      consecutiveErrors += 1;
+      micError(MIC_ERROR_MESSAGES[err] || ('Micro : erreur de reconnaissance vocale (' + err + ').'));
+      if (consecutiveErrors >= 5 && settings.wakeWordEnabled !== false) {
+        window.raphael.setSettings({ wakeWordEnabled: false });
+        micError("Micro : la reconnaissance vocale echoue de maniere repetee. L'ecoute permanente du mot-cle Â«RaphaelÂ» a ete desactivee automatiquement (reactivable dans les Parametres) ; le bouton micro maintenu reste disponible.");
+      }
     };
 
     recognition.onend = () => {
       recognizing = false;
-      btnMic.classList.remove('recording');
       stopMicAnalyser();
-      if (!document.body.classList.contains('thinking') && !document.body.classList.contains('speaking')) {
+      if (wakeArmed && !holdingButton) {
+        // Arret inattendu (erreur, coupure) en pleine capture automatique (mot-cle) :
+        // on envoie ce qui a deja ete transcrit plutot que de le perdre silencieusement.
+        const text = (input.value || finalBuffer).trim();
+        wakeArmed = false;
+        finalBuffer = '';
+        btnMic.classList.remove('recording');
+        if (text) {
+          input.value = text;
+          sendMessage();
+        }
+      } else if (!holdingButton) {
+        // Ne retire le voyant rouge que si l'utilisateur n'est pas toujours en
+        // train de maintenir le bouton : un redemarrage de la reconnaissance en
+        // arriere-plan pendant une prise de parole maintenue ne doit pas donner
+        // l'impression que le micro s'est arrete.
+        btnMic.classList.remove('recording');
+      }
+      if (!document.body.classList.contains('thinking') && !document.body.classList.contains('speaking') && !wakeArmed) {
         setState('idle');
+      }
+      clearTimeout(restartTimer);
+      if (holdingButton) {
+        // L'utilisateur maintient toujours le bouton : on relance tout de
+        // suite plutot que d'attendre le delai anti-boucle habituel.
+        ensureListening();
+      } else {
+        restartTimer = setTimeout(ensureListening, 400);
       }
     };
   }
 
-  async function toggleRecognition() {
+  function startHolding() {
     if (!recognition) return;
-    if (recognizing) {
-      recognition.stop();
-      return;
-    }
     stopSpeaking();
-    await startMicAnalyser();
-    try {
-      recognition.lang = settings.voiceLang || 'fr-FR';
-      recognition.start();
-    } catch (e) { /* already started */ }
+    holdingButton = true;
+    wakeArmed = true;
+    finalBuffer = '';
+    input.value = '';
+    autosize();
+    resetMicTitle();
+    btnMic.classList.add('recording');
+    setState('listening');
+    startMicAnalyser();
+    ensureListening();
+  }
+
+  function stopHolding() {
+    if (!holdingButton) return;
+    holdingButton = false;
+    if (wakeArmed) finalizeCapture();
   }
 
   // ---------- settings ----------
   function applySettings(s) {
+    const prevWake = settings.wakeWordEnabled;
     settings = s || {};
     document.documentElement.style.setProperty('--panel-alpha', settings.opacity ?? 0.94);
     btnVoiceToggle.classList.toggle('muted', settings.voiceEnabled === false);
+    if (settings.wakeWordEnabled === false && prevWake !== false) {
+      if (!holdingButton) stopRecognitionSession();
+    } else if (settings.wakeWordEnabled !== false && prevWake === false) {
+      ensureListening();
+    }
   }
 
   // ---------- chat ----------
@@ -375,7 +530,13 @@
   });
   btnSettings.addEventListener('click', () => window.raphael.openSettings());
   btnSend.addEventListener('click', sendMessage);
-  btnMic.addEventListener('click', toggleRecognition);
+  // Micro a maintenir (push-to-talk) : on capture pendant que le bouton est
+  // presse, on envoie au relachement. Ecoute sur window pour ne pas perdre le
+  // relachement si le curseur glisse hors du (tout petit) bouton.
+  btnMic.addEventListener('mousedown', (e) => { e.preventDefault(); startHolding(); });
+  window.addEventListener('mouseup', () => { if (holdingButton) stopHolding(); });
+  btnMic.addEventListener('touchstart', (e) => { e.preventDefault(); startHolding(); }, { passive: false });
+  window.addEventListener('touchend', () => { if (holdingButton) stopHolding(); });
   btnVoiceToggle.addEventListener('click', () => {
     const enabled = settings.voiceEnabled !== false;
     if (enabled) stopSpeaking();
@@ -397,5 +558,6 @@
     const s = await window.raphael.getSettings();
     applySettings(s);
     window.raphael.onSettingsUpdated(applySettings);
+    ensureListening();
   })();
 })();
