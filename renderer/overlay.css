@@ -48,7 +48,8 @@ html, body {
 }
 
 #pulse {
-  -webkit-app-region: no-drag;
+  /* Same reasoning as #ico-mount above: stays undeclared so dragging works
+     through it too, even though it doesn't receive clicks (pointer-events:none). */
   position: absolute;
   inset: -4px;
   border-radius: 50%;
@@ -73,7 +74,11 @@ html, body {
    timing rather than true audio amplitude). */
 
 #ico-mount {
-  -webkit-app-region: no-drag;
+  /* No app-region declared here on purpose: it must inherit "drag" from
+     #avatar so the whole visible bubble stays directly draggable. Giving it
+     "no-drag" (even with pointer-events:none) creates a dead zone for window
+     dragging over the entire icosahedron, since -webkit-app-region hit-testing
+     in Chromium is decided by paint order, not by pointer-events. */
   width: 78%;
   height: 78%;
   perspective: 700px;
