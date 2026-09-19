@@ -93,6 +93,21 @@
         </p>
       </label>
 
+      <label class="field checkbox">
+        <input id="wakeWordEnabled" type="checkbox" />
+        <span>Ecoute permanente du mot-cle "Raphael"</span>
+      </label>
+      <p class="hint">
+        Quand c'est active, Raphael guette son prenom en arriere-plan : des que tu dis
+        "Raphael, ..." il ecoute la suite et te repond, sans avoir besoin d'appuyer sur le
+        micro. Cela demande que le microphone reste ouvert en permanence (l'icone d'utilisation
+        du micro de Windows/macOS restera donc affichee), et repose sur le meme moteur de
+        reconnaissance vocale que le bouton micro : si celui-ci ne fonctionne pas sur ta machine,
+        le mot-cle ne fonctionnera pas non plus. En cas d'echecs repetes, cette option se
+        desactive automatiquement pour ne pas tourner dans le vide ; le bouton micro maintenu
+        reste toujours utilisable.
+      </p>
+
       <label class="field">
         <span>Vitesse de la voix : <span id="voiceRateValue">1.0x</span></span>
         <input id="voiceRate" type="range" min="0.5" max="2" step="0.1" />
@@ -113,8 +128,9 @@
       </div>
 
       <p class="hint">
-        Le microphone (bouton pres de la zone de saisie) te permet de parler directement a Raphael :
-        ta question est transcrite puis envoyee automatiquement des que tu arretes de parler.
+        Le microphone (bouton pres de la zone de saisie) fonctionne en maintien : appuie et garde
+        le doigt/clic enfonce pendant que tu parles, ta question est envoyee automatiquement des
+        que tu relaches.
       </p>
     </section>
 
